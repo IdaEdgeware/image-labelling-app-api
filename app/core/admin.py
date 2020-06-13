@@ -28,3 +28,4 @@ class UserAdmin(BaseUserAdmin):
 admin.site.register(models.User, UserAdmin)
 admin.site.register(models.Label)
 admin.site.register(models.PatientInfo)
+admin.site.register(models.Image)

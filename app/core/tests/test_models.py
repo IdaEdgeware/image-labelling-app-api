@@ -61,3 +61,13 @@ class ModelTests(TestCase):
         )
 
         self.assertEqual(str(patient_info), patient_info.name)
+
+    def test_image_str(self):
+        """Test the image string representation."""
+        image = models.Image.objects.create(
+            user=sample_user(),
+            title="Dear patient1 MRI Image",
+            date="2020-05-12",
+            status="New status",
+        )
+        self.assertEqual(str(image), image.title)

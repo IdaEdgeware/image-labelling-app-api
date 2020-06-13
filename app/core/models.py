@@ -1,3 +1,4 @@
+from datetime import date
 from django.db import models
 from django.contrib.auth.models import (
     AbstractBaseUser,
@@ -63,3 +64,19 @@ class PatientInfo(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class Image(models.Model):
+    """Image object"""
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+    )
+    title = models.CharField(max_length=255)
+    status = models.CharField(max_length=255)
+    date = models.DateField(default=date.today)
+    labels = models.ManyToManyField('Label')
+    patient_info = models.ManyToManyField('PatientInfo')
+
+    def __str__(self):
+        return self.title
