@@ -52,3 +52,12 @@ class ModelTests(TestCase):
         )
 
         self.assertEqual(str(label), label.name)
+
+    def test_patient_info_str(self):
+        """ Test the patient info string representation"""
+        patient_info = models.PatientInfo.objects.create(
+            user=sample_user(),
+            name='Test patient'
+        )
+
+        self.assertEqual(str(patient_info), patient_info.name)

@@ -6,7 +6,7 @@ from image import views
 
 router = DefaultRouter()
 router.register('labels', views.LabelViewSet)
-
+router.register('patientinfo', views.PatientInfoViewSet)
 app_name = 'image'
 
 urlpatterns = [
