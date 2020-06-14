@@ -155,3 +155,37 @@ class PrivateImageApiTests(TestCase):
         self.assertEqual(patient_info.count(), 2)
         self.assertIn(patient_info1, patient_info)
         self.assertIn(patient_info2, patient_info)
+
+    def test_partial_update_image(self):
+        """Test updating an image with patch"""
+        image = sample_image(user=self.user)
+        image.labels.add(sample_label(user=self.user))
+        new_label = sample_label(user=self.user, name='MS')
+
+        payload = {'title': 'New Sample image', 'labels': [new_label.id]}
+        url = detail_url(image.id)
+        self.client.patch(url, payload)
+
+        image.refresh_from_db()
+        self.assertEqual(image.title, payload['title'])
+        labels = image.labels.all()
+        self.assertEqual(len(labels), 1)
+        self.assertIn(new_label, labels)
+
+    def test_full_update_image(self):
+        """Test updating an image with put"""
+        image = sample_image(user=self.user)
+        image.labels.add(sample_label(user=self.user))
+
+        payload = {
+                'title': 'Image test title',
+                'status': 'Image status',
+            }
+        url = detail_url(image.id)
+        self.client.put(url, payload)
+
+        image.refresh_from_db()
+        self.assertEqual(image.title, payload['title'])
+        self.assertEqual(image.status, payload['status'])
+        labels = image.labels.all()
+        self.assertEqual(len(labels), 0)
