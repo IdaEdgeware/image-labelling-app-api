@@ -38,3 +38,9 @@ class ImageSerializer(serializers.ModelSerializer):
             'id', 'title', 'status', 'date', 'labels', 'patient_info'
             )
         read_only_fields = ('id',)
+
+
+class ImageDetailSerializer(ImageSerializer):
+    """Serialize an image detail"""
+    patient_info = PatientInfoSerializer(many=True, read_only=True)
+    labels = LabelSerializer(many=True, read_only=True)

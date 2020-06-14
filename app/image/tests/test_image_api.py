@@ -5,12 +5,27 @@ from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APIClient
 
-from core.models import Image
+from core.models import Image, Label, PatientInfo
 
-from image.serializers import ImageSerializer
+from image.serializers import ImageSerializer, ImageDetailSerializer
 
 
 IMAGES_URL = reverse('image:image-list')
+
+
+def sample_label(user, name='Diabetes'):
+    """Create and return a sample label"""
+    return Label.objects.create(user=user, name=name)
+
+
+def sample_patient_info(user, name='Patient1'):
+    """Create and return a sample patient info"""
+    return PatientInfo.objects.create(user=user, name=name)
+
+
+def detail_url(image_id):
+    """Return image detail URL"""
+    return reverse('image:image-detail', args=[image_id])
 
 
 def sample_image(user, **params):
@@ -76,4 +91,16 @@ class PrivateImageApiTests(TestCase):
         serializer = ImageSerializer(images, many=True)
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         self.assertEqual(len(res.data), 1)
+        self.assertEqual(res.data, serializer.data)
+
+    def test_view_image_detail(self):
+        """Test viewing an image detail"""
+        image = sample_image(user=self.user)
+        image.labels.add(sample_label(user=self.user))
+        image.patient_info.add(sample_patient_info(user=self.user))
+
+        url = detail_url(image.id)
+        res = self.client.get(url)
+
+        serializer = ImageDetailSerializer(image)
         self.assertEqual(res.data, serializer.data)
