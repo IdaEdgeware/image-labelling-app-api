@@ -243,3 +243,47 @@ class ImageUploadTests(TestCase):
             )
 
         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_filter_images_by_labels(self):
+        """Test returning images with specific labels"""
+        image1 = sample_image(user=self.user, title='Test')
+        image2 = sample_image(user=self.user, title='Test2')
+        label1 = sample_label(user=self.user, name='test label 1')
+        label2 = sample_label(user=self.user, name='test label 2')
+        image1.labels.add(label1)
+        image2.labels.add(label2)
+        image3 = sample_image(user=self.user, title='test label 3')
+
+        res = self.client.get(
+            IMAGES_URL,
+            {'labels': f'{label1.id},{label2.id}'}
+        )
+
+        serializer1 = ImageSerializer(image1)
+        serializer2 = ImageSerializer(image2)
+        serializer3 = ImageSerializer(image3)
+        self.assertIn(serializer1.data, res.data)
+        self.assertIn(serializer2.data, res.data)
+        self.assertNotIn(serializer3.data, res.data)
+
+    def test_filter_images_by_patient_info(self):
+        """Test returning images with specific patient info"""
+        image1 = sample_image(user=self.user, title='Title 1')
+        image2 = sample_image(user=self.user, title='Title 2')
+        patient_info1 = sample_patient_info(user=self.user, name='Info1')
+        patient_info2 = sample_patient_info(user=self.user, name='Info2')
+        image1.patient_info.add(patient_info1)
+        image2.patient_info.add(patient_info2)
+        image3 = sample_image(user=self.user, title='Title 3')
+
+        res = self.client.get(
+            IMAGES_URL,
+            {'patient_info': f'{patient_info1.id},{patient_info2.id}'}
+        )
+
+        serializer1 = ImageSerializer(image1)
+        serializer2 = ImageSerializer(image2)
+        serializer3 = ImageSerializer(image3)
+        self.assertIn(serializer1.data, res.data)
+        self.assertIn(serializer2.data, res.data)
+        self.assertNotIn(serializer3.data, res.data)

@@ -47,9 +47,23 @@ class ImageViewSet(viewsets.ModelViewSet):
     authentication_classes = (TokenAuthentication,)
     permission_classes = (IsAuthenticated,)
 
+    def _params_to_ints(self, qs):
+        """ Convert a list of  string IDs to a list of integers"""
+        return [int(str_id) for str_id in qs.split(',')]
+
     def get_queryset(self):
         """Retrieve the images for the authenticated user"""
-        return self.queryset.filter(user=self.request.user)
+        labels = self.request.query_params.get('labels')
+        patient_information = self.request.query_params.get('patient_info')
+        queryset = self.queryset
+        if labels:
+            label_ids = self._params_to_ints(labels)
+            queryset = queryset.filter(labels__id__in=label_ids)
+        if patient_information:
+            pi_ids = self._params_to_ints(patient_information)
+            queryset = queryset.filter(patient_info__id__in=pi_ids)
+
+        return queryset.filter(user=self.request.user)
 
     def get_serializer_class(self):
         """Return appropriate serializer class """
