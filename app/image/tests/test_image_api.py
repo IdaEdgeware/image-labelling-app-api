@@ -104,3 +104,54 @@ class PrivateImageApiTests(TestCase):
 
         serializer = ImageDetailSerializer(image)
         self.assertEqual(res.data, serializer.data)
+
+    def test_create_basic_image(self):
+        """ Test creating an image"""
+        payload = {
+            'title': 'Test image title',
+            'status': 'Test status',
+        }
+        res = self.client.post(IMAGES_URL, payload)
+
+        self.assertEqual(res.status_code, status.HTTP_201_CREATED)
+        image = Image.objects.get(id=res.data['id'])
+        for key in payload.keys():
+            self.assertEqual(payload[key], getattr(image, key))
+
+    def test_create_image_with_label(self):
+        """ Test creating an image with labels"""
+        label1 = sample_label(user=self.user, name='Diabetes')
+        label2 = sample_label(user=self.user, name='Covid-19')
+        payload = {
+            'title': 'Title for test image',
+            'labels': [label1.id, label2.id],
+            'status': 'Test status',
+            'date': '2020-05-14'
+        }
+        res = self.client.post(IMAGES_URL, payload)
+
+        self.assertEqual(res.status_code, status.HTTP_201_CREATED)
+        image = Image.objects.get(id=res.data['id'])
+        labels = image.labels.all()
+        self.assertEqual(labels.count(), 2)
+        self.assertIn(label1, labels)
+        self.assertIn(label2, labels)
+
+    def test_create_image_with_patient_info(self):
+        """ Test creating an image with patient info"""
+        patient_info1 = sample_patient_info(user=self.user, name='Peter Jones')
+        patient_info2 = sample_patient_info(user=self.user, name='Albert Str')
+        payload = {
+            'title': 'Title for test image',
+            'patient_info': [patient_info1.id, patient_info2.id],
+            'status': 'Test status',
+            'date': '2020-05-14'
+        }
+        res = self.client.post(IMAGES_URL, payload)
+
+        self.assertEqual(res.status_code, status.HTTP_201_CREATED)
+        image = Image.objects.get(id=res.data['id'])
+        patient_info = image.patient_info.all()
+        self.assertEqual(patient_info.count(), 2)
+        self.assertIn(patient_info1, patient_info)
+        self.assertIn(patient_info2, patient_info)
