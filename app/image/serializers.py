@@ -44,3 +44,12 @@ class ImageDetailSerializer(ImageSerializer):
     """Serialize an image detail"""
     patient_info = PatientInfoSerializer(many=True, read_only=True)
     labels = LabelSerializer(many=True, read_only=True)
+
+
+class ImageUploadSerializer(serializers.ModelSerializer):
+    """Serializer for uploading images """
+
+    class Meta:
+        model = Image
+        fields = ('id', 'image_file')
+        read_only_fields = ('id',)
